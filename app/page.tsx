@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Video from "./components/video-input-form";
 import logo2 from "../public/LOGO 2.png";
-import { FileVideo, Github, Upload, Wand2 } from "lucide-react";
+import { Github, Wand2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -13,6 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+
+import { GetFfmpeg } from "../lib/ffmpeg";
 
 export default function Home() {
   return (
@@ -54,37 +57,9 @@ export default function Home() {
           </p>
         </div>
         <aside className="w-80  space-y-6">
-          <form action="" className="space-y-6">
-            <label
-              htmlFor="video"
-              className="border flex items-center justify-center rounded-md aspect-video cursor-pointer border-dashed flex-col text-sm gap-2 hover:bg-primary/5"
-            >
-              <FileVideo />
-              upload video
-            </label>
-            <input
-              type="file"
-              id="video"
-              accept="video/mp4"
-              className="sr-only"
-            />
-            <Separator />
-            <div className="space-y-1">
-              <Label htmlFor="transcription_prompt ">
-                transcription prompt{" "}
-              </Label>
-              <Textarea
-                id="transcription_prompt"
-                className="min-h-20 leading-6 resize-none"
-                placeholder="Include keywords mentioned in the video separated by commas (,)"
-              />
-            </div>
-            <Button type="submit" className="w-full">
-              Upload video <Upload className="w-4 h-4 ml-2" />
-            </Button>
-          </form>
+          <Video />
           <Separator />
-          <form className="space-y-6">
+          <form className="space-y-6 ">
             <div className="space-y-1">
               <Label>Choose model</Label>
 
