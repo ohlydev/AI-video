@@ -15,6 +15,12 @@ const Video = () => {
   const [VideoFile, setVideoFile] = useState<File | null>(null);
 
   const [Status, setStatus] = useState<Status>("waiting");
+  const MessageStatus = {
+    converting: "Converting...",
+    generating: "Generating...",
+    uploading: "Uploading...",
+    success: "SUCCESS",
+  };
 
   const PromptInputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -69,18 +75,24 @@ const Video = () => {
       return;
     }
 
+    setStatus("converting");
+
     const audioFile = await ConvertVideo(VideoFile);
 
     const data = new FormData();
 
     data.append("file", audioFile);
 
+    setStatus("uploading");
+
     const response = await api.post("/videos", data);
 
     const videoID = response.data.video.id;
+
+    setStatus("generating");
     await api.post(`/videos/${videoID}/Transcription`, { prompt });
 
-    console.log("finalizou");
+    setStatus("success");
   }
 
   const PreviewUrl = useMemo(() => {
@@ -120,14 +132,26 @@ const Video = () => {
       <div className="space-y-1">
         <Label htmlFor="transcription_prompt ">transcription prompt </Label>
         <Textarea
+          disabled={Status !== "waiting"}
           ref={PromptInputRef}
           id="transcription_prompt"
           className="min-h-20 leading-6 resize-none"
           placeholder="Include keywords mentioned in the video separated by commas (,)"
         />
       </div>
-      <Button disabled={Status !== "waiting"} type="submit" className="w-full">
-        Upload video <Upload className="w-4 h-4 ml-2" />
+      <Button
+        data-success={Status == "success"}
+        disabled={Status !== "waiting"}
+        type="submit"
+        className="w-full data-[data-success=true]:bg-emerald-500:"
+      >
+        {Status === "waiting" ? (
+          <>
+            Upload video <Upload className="w-4 h-4 ml-2" />
+          </>
+        ) : (
+          MessageStatus[Status]
+        )}
       </Button>
     </form>
   );
