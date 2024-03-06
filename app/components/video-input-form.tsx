@@ -7,9 +7,15 @@ import { Button } from "../../components/ui/button";
 import { ChangeEvent, FormEvent, useMemo, useRef, useState } from "react";
 import { GetFfmpeg } from "@/lib/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
+import api from "@/lib/axios";
+
+type Status = "waiting" | "converting" | "uploading" | "generating" | "success";
 
 const Video = () => {
   const [VideoFile, setVideoFile] = useState<File | null>(null);
+
+  const [Status, setStatus] = useState<Status>("waiting");
+
   const PromptInputRef = useRef<HTMLTextAreaElement>(null);
 
   function handleFileSelect(event: ChangeEvent<HTMLInputElement>) {
@@ -64,7 +70,17 @@ const Video = () => {
     }
 
     const audioFile = await ConvertVideo(VideoFile);
-    console.log(audioFile);
+
+    const data = new FormData();
+
+    data.append("file", audioFile);
+
+    const response = await api.post("/videos", data);
+
+    const videoID = response.data.video.id;
+    await api.post(`/videos/${videoID}/Transcription`, { prompt });
+
+    console.log("finalizou");
   }
 
   const PreviewUrl = useMemo(() => {
@@ -110,7 +126,7 @@ const Video = () => {
           placeholder="Include keywords mentioned in the video separated by commas (,)"
         />
       </div>
-      <Button type="submit" className="w-full">
+      <Button disabled={Status !== "waiting"} type="submit" className="w-full">
         Upload video <Upload className="w-4 h-4 ml-2" />
       </Button>
     </form>
